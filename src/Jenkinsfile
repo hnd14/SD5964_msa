@@ -1,0 +1,29 @@
+pipeline {
+    agent any
+    stages {
+        stage('Check Changes and Run in Parallel') {
+            steps {
+                script {
+                    // Get the list of changed files
+                    def changedFiles = sh(script: 'git diff --name-only HEAD~1', returnStdout: true).trim()
+
+                    echo "Changed files: ${changedFiles}"
+                    
+                    // Define the subdirectories and their respective pipeline jobs
+                    def subdirectories = ['frontend', 'backend']
+                    // Load docker script
+                    def dockerBuild = load "src/Jenkins-templates/docker.groovy"
+
+                    echo "dockerBuild object: ${dockerBuild}"
+
+                    subdirectories.each { subdir ->
+                        if (changedFiles.contains("src/$subdir/")) {
+                            dockerBuild.buildDockerImage("src/$subdir", "localhost:5000/$subdir-devops", "latest")
+                            sh "docker push localhost:5000/$subdir-devops:latest"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
