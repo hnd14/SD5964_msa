@@ -14,12 +14,14 @@ pipeline {
                     // Load docker script
                     def dockerBuild = load "src/Jenkins-templates/docker.groovy"
 
+                    def registry = "058264560763.dkr.ecr.us-east-1.amazonaws.com/nt-devops"
+
                     echo "dockerBuild object: ${dockerBuild}"
 
                     subdirectories.each { subdir ->
                         if (changedFiles.contains("src/$subdir/")) {
-                            dockerBuild.buildDockerImage("src/$subdir", "localhost:5000/$subdir-devops", "latest")
-                            sh "docker push localhost:5000/$subdir-devops:latest"
+                            dockerBuild.buildDockerImage("src/$subdir", "$registry/$subdir", "latest")
+                            sh "docker push $registry/$subdir:latest"
                         }
                     }
                 }
