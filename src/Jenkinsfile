@@ -19,7 +19,7 @@ pipeline {
                     echo "dockerBuild object: ${dockerBuild}"
 
                     subdirectories.each { subdir ->
-                        if (changedFiles.contains("src/$subdir/")) {
+                        if (true) {
                             dockerBuild.buildDockerImage("src/$subdir", "$registry/$subdir", "latest")
                             sh "docker push $registry/$subdir:latest"
                         }
